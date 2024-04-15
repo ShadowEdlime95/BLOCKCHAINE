@@ -37,7 +37,7 @@ def sbox_backward(output_data, sbox):
 
 def pbox_permutation(input_data):
     
-    #Функція для перестановки P-блоку.
+    #Функція для перестановки P-блоку, яку я вибрав.
     
     pbox_permutation = [16, 7, 20, 21, 29, 12, 28, 17,
                         1, 15, 23, 26, 5, 18, 31, 10,
@@ -49,5 +49,5 @@ def pbox_permutation(input_data):
     return output_data
 
 if __name__ == "__main__":
-    # Ваші тестові зразки та перевірки можна додати тут
+    # Для тих, хто хоче перевірити в цьому файлі дійсність коду я залишаю це поле.
     pass
