@@ -1,53 +1,59 @@
-import numpy as np
+# Таблиця замін для S-блоку
+S_BOX = [
+    [14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7],
+    [0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8],
+    [4, 1, 14, 8, 13, 6, 2, 11, 15, 12, 9, 7, 3, 10, 5, 0],
+    [15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13]
+]
 
-# Функції S-блоку та P-блоку
+# Функція для S-блоку
+def s_box(input):
+    input1 = input[:4] # Перші 4 біти
+    input2 = input[4:] # Останні 4 біти
 
-def generate_sbox():
-    
-    #Функція для генерації випадкової таблиці констант S-блоку.
-    
-      sbox = np.random.randint(0, 256, size=(16, 16), dtype=np.uint8)
-    return sbox
+    row1 = int(input1[0] + input1[3], 2) # Визначення рядка для першої тетради
+    col1 = int(input1[1:3], 2) # Визначення стовпця для першої тетради
+    row2 = int(input2[0] + input2[3], 2) # Визначення рядка для другої тетради
+    col2 = int(input2[1:3], 2) # Визначення стовпця для другої тетради
 
-def sbox_forward(input_data, sbox):
-    
-    #Функція для прямого перетворення за алгоритмом S-блоку.
-    
-    output_data = np.zeros_like(input_data, dtype=np.uint8)
-    for i in range(input_data.shape[0]):
-        for j in range(input_data.shape[1]):
-            row = (input_data[i, j] >> 4) & 0x0F
-            col = input_data[i, j] & 0x0F
-            output_data[i, j] = sbox[row, col]
-    return output_data
+    output1 = format(S_BOX[row1][col1], '04b') # Вихідна перша тетрада
+    output2 = format(S_BOX[row2][col2], '04b') # Вихідна друга тетрада
 
-def sbox_backward(output_data, sbox):
-    
-    #Функція для зворотного перетворення за алгоритмом S-блоку.
-    
-    input_data = np.zeros_like(output_data, dtype=np.uint8)
-    for i in range(output_data.shape[0]):
-        for j in range(output_data.shape[1]):
-            for row in range(16):
-                for col in range(16):
-                    if sbox[row, col] == output_data[i, j]:
-                        input_data[i, j] = (row << 4) | col
-                        break
-    return input_data
+    return output1 + output2 # Повертаємо об'єднані результати обробки обох тетрад
 
-def pbox_permutation(input_data):
-    
-    #Функція для перестановки P-блоку, яку я вибрав.
-    
-    pbox_permutation = [16, 7, 20, 21, 29, 12, 28, 17,
-                        1, 15, 23, 26, 5, 18, 31, 10,
-                        2, 8, 24, 14, 32, 27, 3, 9,
-                        19, 13, 30, 6, 22, 11, 4, 25]
-    output_data = np.zeros_like(input_data)
-    for i, idx in enumerate(pbox_permutation):
-        output_data[i // 8, i % 8] = input_data[(idx - 1) // 8, (idx - 1) % 8]
-    return output_data
+# Функція для зворотного S-блоку
+def reverse_s_box(input):
+    output = ""
+    for char in input:
+        index = S_BOX[int(char, 2)].index(int(char, 2))
+        output += format(index, '04b')
+    return output
 
-if __name__ == "__main__":
-    # Для тих, хто хоче перевірити в цьому файлі дійсність коду я залишаю це поле.
-    pass
+# Функція для P-блоку (перестановка)
+def p_box(input):
+    output = ""
+    for index in [2, 4, 6, 8, 1, 3, 5, 7]:
+        output += input[index - 1]
+    return output
+
+# Функція для зворотного P-блоку (перестановка)
+def reverse_p_box(input):
+    output = ""
+    for index in [5, 1, 3, 7, 2, 4, 6, 8]:
+        output += input[index - 1]
+    return output
+
+# Перевірка роботи функцій
+def test():
+    input_data = "10101010"
+    s_result = s_box(input_data)
+    print("S-блок прямого перетворення:", s_result)
+    reverse_s_result = reverse_s_box(s_result)
+    print("S-блок зворотного перетворення:", reverse_s_result)
+
+    p_result = p_box(input_data)
+    print("P-блок прямого перетворення:", p_result)
+    reverse_p_result = reverse_p_box(p_result)
+    print("P-блок зворотного перетворення:", reverse_p_result)
+
+test()
